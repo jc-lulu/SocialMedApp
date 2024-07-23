@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "482056001255",
+    "project_id": "socialmedapp-cec7f",
+    "storage_bucket": "socialmedapp-cec7f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:482056001255:android:0d931fdd4a4801d850b442",
+        "android_client_info": {
+          "package_name": "com.example.final_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzTN1RWaH8Ej1YZXDmeuFsqw2gnx63GxQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

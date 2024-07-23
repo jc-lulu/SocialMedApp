@@ -1,7 +1,20 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:final_project/pages.dart';
 
-void main() {
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+        options: const FirebaseOptions(
+            apiKey: "AIzaSyCVN8lC4sU3Dd7QK42n1vlzD1ykzZoJpKA",
+            appId: "1:482056001255:web:c83d870735aebb6d50b442",
+            messagingSenderId: "482056001255",
+            projectId: "socialmedapp-cec7f"));
+  }
+
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
