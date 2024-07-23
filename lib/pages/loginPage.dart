@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:final_project/pages.dart';
 
@@ -10,6 +11,7 @@ class LogInPage extends StatefulWidget {
 
 class _LogInPageState extends State<LogInPage> {
   final _formKey = GlobalKey<FormState>();
+  final FirebaseAuthService _auth = FirebaseAuthService();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -20,12 +22,61 @@ class _LogInPageState extends State<LogInPage> {
     super.dispose();
   }
 
-  void _login() {
-    if (_formKey.currentState?.validate() ?? false) {
-      // Perform login actions here
-      print("Form is valid");
-    } else {
-      print("Form is not valid");
+  Future<void> _login() async {
+    if (_formKey.currentState!.validate()) {
+      // Get email and password from controllers
+      String email = _emailController.text.trim();
+      String password = _passwordController.text.trim();
+
+      // Check if email and password are not empty
+      if (email.isEmpty || password.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Email and password cannot be empty')),
+        );
+        return;
+      }
+
+      try {
+        // Attempt to sign in with email and password
+        User? userCredential = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        // Navigate to the profile page if login is successful
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfilePage(email: email),
+          ),
+        );
+      } on FirebaseAuthException catch (e) {
+        String errorMessage;
+
+        // Handle different FirebaseAuthException error codes
+        switch (e.code) {
+          case 'user-not-found':
+            errorMessage = 'No user found for that email.';
+            break;
+          case 'wrong-password':
+            errorMessage = 'Wrong password provided for that user.';
+            break;
+          case 'invalid-email':
+            errorMessage = 'The email address is not valid.';
+            break;
+          default:
+            errorMessage = 'An unexpected error occurred. Please try again.';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: $errorMessage')),
+        );
+      } catch (e) {
+        // Handle any other exceptions
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: ${e.toString()}')),
+        );
+      }
     }
   }
 

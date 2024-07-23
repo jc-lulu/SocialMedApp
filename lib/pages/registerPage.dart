@@ -1,4 +1,5 @@
-import 'package:final_project/pages/loginPage.dart';
+import 'package:final_project/firebase_auth_implementation/firebase_auth_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Registerpage extends StatefulWidget {
@@ -10,6 +11,7 @@ class Registerpage extends StatefulWidget {
 
 class RegisterpageState extends State<Registerpage> {
   final _formKey = GlobalKey<FormState>();
+  final FirebaseAuthService _auth = FirebaseAuthService();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -20,7 +22,7 @@ class RegisterpageState extends State<Registerpage> {
       RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
   final RegExp passwordRegExp =
       RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
-  final RegExp usernameRegExp = RegExp('[A-Za-z][A-Za-z0-9._]{5,14} ');
+  final RegExp usernameRegExp = RegExp('[A-Za-z][A-Za-z0-9._]{5,14}');
 
   @override
   void dispose() {
@@ -31,11 +33,41 @@ class RegisterpageState extends State<Registerpage> {
     super.dispose();
   }
 
-  void _login() {
-    if (_formKey.currentState?.validate() ?? false) {
-      print("Form is valid");
-    } else {
-      print("Form is not valid");
+  void _signUp() async {
+    if (_formKey.currentState!.validate()) {
+      String username = _usernamecontroller.text;
+      String email = _emailController.text;
+      String password = _passwordController.text;
+      String confirmPassword = _confirmPasswordController.text;
+
+      // Check if passwords match
+      if (password != confirmPassword) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Passwords do not match')),
+        );
+        return;
+      }
+
+      try {
+        // Sign up with email and password
+        User? user = await _auth.signUpWithEmailAndPassword(email, password);
+
+        if (user != null) {
+          print("User is successfully created");
+          // Navigate to home or another page
+          // Navigator.pushNamed(context, '/home');
+        } else {
+          print("Sign up failed");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Sign up failed')),
+          );
+        }
+      } catch (e) {
+        print("Error occurred during sign up: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
   }
 
@@ -78,7 +110,7 @@ class RegisterpageState extends State<Registerpage> {
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
-                      onPressed: _login,
+                      onPressed: _signUp,
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -115,9 +147,9 @@ class RegisterpageState extends State<Registerpage> {
                             controller: _usernamecontroller,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
+                                return 'Please enter your username';
                               } else if (!usernameRegExp.hasMatch(value)) {
-                                return 'Please enter a valid email';
+                                return 'Please enter a username';
                               }
                               return null;
                             },
@@ -199,7 +231,7 @@ class RegisterpageState extends State<Registerpage> {
                             width: MediaQuery.of(context).size.width * 0.9,
                             height: 40,
                             child: ElevatedButton(
-                              onPressed: _login,
+                              onPressed: _signUp,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
                                     const Color.fromARGB(255, 30, 200, 230),
